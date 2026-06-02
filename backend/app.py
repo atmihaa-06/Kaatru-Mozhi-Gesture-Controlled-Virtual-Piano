@@ -12,14 +12,16 @@ from stats import (
 )
 
 from heatmap import (
-    register_hit
+    register_hit,
+    get_hits
 )
 from recording import (
     start_recording,
     stop_recording,
     save_note,
     get_recording,
-    is_recording
+    is_recording,
+    save_recording_to_file
 )
 
 import threading
@@ -138,7 +140,7 @@ def playback():
             time.sleep(delay)
 
         play_note(note)
-
+        register_hit(note)
         previous_time = current_time
 # ==========================
 # Main
@@ -229,7 +231,9 @@ def main():
                           play_note(note)
 
                           save_note(note)
+                          register_hit(note)
 
+                          update_stats(note)
                           last_played_notes.add(note)
 
         # ==========================
@@ -370,13 +374,37 @@ def main():
 
             cv2.putText(
                 frame,
-                "RECORDING",
+                "REC",
                 (20, 160),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
                 (0, 0, 255),
                 2
             )
+            cv2.putText(
+                frame,
+                "PLAY",
+                (20, 200),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.9,
+                (255, 0, 0),
+                3
+            )
+        # ==========================
+        # Heatmap Display
+        # ==========================
+
+        hits = get_hits()
+
+        y_pos = 220
+
+        
+
+        y_pos += 30
+
+       
+
+        y_pos += 22
         cv2.imshow(
             "Kaatru-Mozhi Virtual Piano",
             frame
@@ -402,6 +430,7 @@ def main():
             else:
 
                 stop_recording()
+                save_recording_to_file()
                 print("Recording Stopped")
 
         elif key == ord("p"):
