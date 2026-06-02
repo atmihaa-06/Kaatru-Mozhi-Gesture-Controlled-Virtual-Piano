@@ -11,7 +11,10 @@ NOTES = [
     "B"
 ]
 
-WHITE_KEYS = ["C", "D", "E", "F", "G", "A", "B"]
+WHITE_KEYS = [
+    "C", "D", "E",
+    "F", "G", "A", "B"
+]
 
 BLACK_KEYS = [
     ("C#", 0),
@@ -41,11 +44,17 @@ def draw_piano(
 
     white_key_width = width / 7
 
-    keys = []
+    white_keys = []
+    black_keys = []
 
-    # ==========================
-    # White Key Outlines
-    # ==========================
+    # =====================================
+    # Projected Piano Glow Layer
+    # =====================================
+    overlay = frame.copy()
+
+    # =====================================
+    # WHITE KEYS
+    # =====================================
     for i, note in enumerate(WHITE_KEYS):
 
         x1 = int(tl[0] + i * white_key_width)
@@ -55,16 +64,15 @@ def draw_piano(
 
         if note in active_notes:
 
-            # Glow when pressed
             cv2.rectangle(
-                frame,
+                overlay,
                 (x1, tl[1]),
                 (x2, bl[1]),
-                (255, 180, 0),
-                6
+                (0, 180, 255),
+                -1
             )
 
-            border_color = (255, 180, 0)
+            border_color = (0, 180, 255)
 
         cv2.rectangle(
             frame,
@@ -84,17 +92,18 @@ def draw_piano(
             2
         )
 
-        keys.append({
+        white_keys.append({
             "note": note,
             "x1": x1,
             "x2": x2,
             "y1": tl[1],
-            "y2": bl[1]
+            "y2": bl[1],
+            "type": "white"
         })
 
-    # ==========================
-    # Black Key Outlines
-    # ==========================
+    # =====================================
+    # BLACK KEYS
+    # =====================================
     black_height = int(height * 0.60)
     black_width = int(white_key_width * 0.45)
 
@@ -102,7 +111,8 @@ def draw_piano(
 
         center_x = int(
             tl[0] +
-            (white_index + 1) * white_key_width
+            (white_index + 1) *
+            white_key_width
         )
 
         x1 = center_x - black_width // 2
@@ -113,14 +123,14 @@ def draw_piano(
         if note in active_notes:
 
             cv2.rectangle(
-                frame,
+                overlay,
                 (x1, tl[1]),
                 (x2, tl[1] + black_height),
-                (255, 180, 0),
-                6
+                (0, 180, 255),
+                -1
             )
 
-            border_color = (255, 180, 0)
+            border_color = (0, 180, 255)
 
         cv2.rectangle(
             frame,
@@ -133,19 +143,38 @@ def draw_piano(
         cv2.putText(
             frame,
             note,
-            (x1 + 2, tl[1] + black_height - 10),
+            (x1 + 2,
+             tl[1] + black_height - 10),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
             border_color,
             1
         )
 
-        keys.append({
+        black_keys.append({
             "note": note,
             "x1": x1,
             "x2": x2,
             "y1": tl[1],
-            "y2": tl[1] + black_height
+            "y2": tl[1] + black_height,
+            "type": "black"
         })
 
-    return keys
+    # =====================================
+    # Projector Effect
+    # =====================================
+    cv2.addWeighted(
+        overlay,
+        0.18,
+        frame,
+        0.82,
+        0,
+        frame
+    )
+
+    # =====================================
+    # IMPORTANT:
+    # Return black keys first
+    # so touch detection prioritizes them
+    # =====================================
+    return black_keys + white_keys

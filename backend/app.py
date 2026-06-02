@@ -4,6 +4,26 @@ import mediapipe as mp
 from calibration import calibrate_surface
 from piano import draw_piano
 from sound_engine import play_note
+from playback import start_playback
+
+from stats import (
+    update_stats,
+    get_most_played
+)
+
+from heatmap import (
+    register_hit
+)
+from recording import (
+    start_recording,
+    stop_recording,
+    save_note,
+    get_recording,
+    is_recording
+)
+
+import threading
+import time
 
 # ==========================
 # MediaPipe Setup
@@ -97,7 +117,29 @@ def build_key_map(wall_points):
 
     return keys
 
+def playback():
 
+    notes = get_recording()
+
+    if not notes:
+        print("No recording found")
+        return
+
+    previous_time = 0
+
+    for item in notes:
+
+        note = item["note"]
+        current_time = item["time"]
+
+        delay = current_time - previous_time
+
+        if delay > 0:
+            time.sleep(delay)
+
+        play_note(note)
+
+        previous_time = current_time
 # ==========================
 # Main
 # ==========================
@@ -184,11 +226,11 @@ def main():
 
                         if note not in last_played_notes:
 
-                            play_note(note)
+                          play_note(note)
 
-                            last_played_notes.add(
-                                note
-                            )
+                          save_note(note)
+
+                          last_played_notes.add(note)
 
         # ==========================
         # Reset Released Notes
@@ -305,7 +347,36 @@ def main():
             (255, 255, 255),
             2
         )
+        if is_recording():
 
+            cv2.circle(
+                frame,
+                (w - 50, 40),
+                10,
+                (0, 0, 255),
+                -1
+            )
+
+        cv2.putText(
+            frame,
+            "REC",
+            (w - 90, 48),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 255),
+            2
+        )
+        if is_recording():
+
+            cv2.putText(
+                frame,
+                "RECORDING",
+                (20, 160),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 0, 255),
+                2
+            )
         cv2.imshow(
             "Kaatru-Mozhi Virtual Piano",
             frame
@@ -321,8 +392,38 @@ def main():
 
             print("\nWall Calibrated")
 
+        elif key == ord("r"):
+
+            if not is_recording():
+
+                start_recording()
+                print("Recording Started")
+
+            else:
+
+                stop_recording()
+                print("Recording Stopped")
+
+        elif key == ord("p"):
+
+            threading.Thread(
+                target=playback,
+                daemon=True
+            ).start()
+
         elif key == ord("q"):
             break
+    #save_recording()
+
+    most_played = get_most_played()
+
+    if most_played:
+
+        print()
+        print(
+            "Most Played Note:",
+            most_played
+        )
 
     cap.release()
     cv2.destroyAllWindows()
