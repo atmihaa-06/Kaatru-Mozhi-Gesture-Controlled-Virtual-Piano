@@ -370,26 +370,7 @@ def main():
             (0, 0, 255),
             2
         )
-        if is_recording():
-
-            cv2.putText(
-                frame,
-                "REC",
-                (20, 160),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (0, 0, 255),
-                2
-            )
-            cv2.putText(
-                frame,
-                "PLAY",
-                (20, 200),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.9,
-                (255, 0, 0),
-                3
-            )
+       
         # ==========================
         # Heatmap Display
         # ==========================
