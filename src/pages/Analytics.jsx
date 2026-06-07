@@ -10,6 +10,16 @@ function Analytics() {
     { note: "B", count: 20 }
   ];
 
+  const totalNotes = noteStats.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+
+  const mostPlayed = noteStats.reduce(
+    (max, item) =>
+      item.count > max.count ? item : max
+  );
+
   return (
 
     <div className="analytics-page">
@@ -22,12 +32,17 @@ function Analytics() {
 
         <div className="analytics-card">
           <h3>Total Notes Played</h3>
-          <h1>1245</h1>
+          <h1>{totalNotes}</h1>
         </div>
 
         <div className="analytics-card">
           <h3>Most Played Note</h3>
-          <h1>E</h1>
+          <h1>{mostPlayed.note}</h1>
+        </div>
+
+        <div className="analytics-card">
+          <h3>Unique Notes</h3>
+          <h1>{noteStats.length}</h1>
         </div>
 
       </div>
@@ -44,11 +59,19 @@ function Analytics() {
             key={item.note}
             className="heat-key"
             style={{
-              opacity: item.count / 80
+              opacity: Math.max(
+                item.count / 80,
+                0.25
+              )
             }}
           >
+
             <span>{item.note}</span>
-            <small>{item.count}</small>
+
+            <small>
+              {item.count}
+            </small>
+
           </div>
 
         ))}
@@ -58,7 +81,6 @@ function Analytics() {
     </div>
 
   );
-
 }
 
 export default Analytics;

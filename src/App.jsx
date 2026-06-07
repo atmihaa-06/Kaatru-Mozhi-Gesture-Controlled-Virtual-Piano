@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import Recordings from "./pages/Recordings";
 import About from "./pages/About";
-import Piano from "./pages/Piano";
+import PianoPage from "./pages/PianoPage";
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
         <Route path="/recordings" element={<Recordings />} />
         <Route path="/about" element={<About />} />
 
-        <Route path="/piano" element={<Piano />} />
+        <Route path="/piano" element={<PianoPage />} />
       </Routes>
     </BrowserRouter>
   );
