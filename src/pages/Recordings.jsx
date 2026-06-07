@@ -1,27 +1,76 @@
-import RecordingCard from "../components/RecordingCard";
+import { useEffect, useState } from "react";
 
 function Recordings() {
 
-  const recordings = [
-    {
-      id: 1,
-      name: "Session 1",
-      duration: "00:23",
-      date: "07 Jun 2026"
-    },
-    {
-      id: 2,
-      name: "Session 2",
-      duration: "00:15",
-      date: "07 Jun 2026"
-    },
-    {
-      id: 3,
-      name: "Session 3",
-      duration: "00:34",
-      date: "07 Jun 2026"
+  const [recordings, setRecordings] = useState([]);
+
+  useEffect(() => {
+
+    fetch("http://127.0.0.1:8000/api/recordings")
+      .then((res) => res.json())
+      .then((data) => {
+        setRecordings(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+  }, []);
+
+  const playRecording = async (filename) => {
+
+    try {
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/play/${filename}`,
+        {
+          method: "POST"
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(data);
+
+    } catch (error) {
+
+      console.error(error);
+
     }
-  ];
+
+  };
+
+  const downloadRecording = (filename) => {
+
+    window.open(
+      `http://127.0.0.1:8000/api/download/${filename}`,
+      "_blank"
+    );
+
+  };
+
+  const stopPlayback = async () => {
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/stop",
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+};
 
   return (
 
@@ -33,46 +82,60 @@ function Recordings() {
 
       <div className="recordings-container">
 
-        {recordings.map((recording) => (
+        {recordings.length === 0 ? (
 
-          <div
-            key={recording.id}
-            className="recording-card"
-          >
+          <p>No recordings found.</p>
 
-            <div>
+        ) : (
 
-              <h2>{recording.name}</h2>
+          recordings.map((recording, index) => (
 
-              <p>
-                Duration: {recording.duration}
-              </p>
+            <div
+              key={index}
+              className="recording-card"
+            >
 
-              <p>
-                Recorded: {recording.date}
-              </p>
+              <div>
+
+                <h2>{recording.name}</h2>
+
+                <p>
+                  Notes Recorded: {recording.notes}
+                </p>
+
+              </div>
+
+              <div className="recording-actions">
+
+                <button
+                  onClick={() =>
+                    playRecording(recording.name)
+                  }
+                >
+                  ▶ Play
+                </button>
+
+                <button
+                  onClick={() =>
+                    downloadRecording(recording.name)
+                  }
+                >
+                  ⬇ Download
+                </button>
+
+                <button
+                  onClick={stopPlayback}
+                >
+                  ⏹ Stop
+                </button>
+
+              </div>
 
             </div>
 
-            <div className="recording-actions">
+          ))
 
-              <button>
-                ▶ Play
-              </button>
-
-              <button>
-                ⬇ Download
-              </button>
-
-              <button>
-                🗑 Delete
-              </button>
-
-            </div>
-
-          </div>
-
-        ))}
+        )}
 
       </div>
 

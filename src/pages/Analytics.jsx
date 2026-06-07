@@ -1,24 +1,57 @@
+import { useEffect, useState } from "react";
+
 function Analytics() {
 
-  const noteStats = [
-    { note: "C", count: 10 },
-    { note: "D", count: 25 },
-    { note: "E", count: 80 },
-    { note: "F", count: 15 },
-    { note: "G", count: 60 },
-    { note: "A", count: 35 },
-    { note: "B", count: 20 }
-  ];
+  const [noteStats, setNoteStats] =
+    useState([]);
 
-  const totalNotes = noteStats.reduce(
-    (sum, item) => sum + item.count,
-    0
-  );
+  const [totalNotes, setTotalNotes] =
+    useState(0);
 
-  const mostPlayed = noteStats.reduce(
-    (max, item) =>
-      item.count > max.count ? item : max
-  );
+  const [mostPlayed, setMostPlayed] =
+    useState("-");
+
+  useEffect(() => {
+
+    fetch("http://127.0.0.1:8000/api/stats")
+
+      .then((res) => res.json())
+
+      .then((data) => {
+
+        setTotalNotes(
+          data.total_notes
+        );
+
+        setMostPlayed(
+          data.most_played || "-"
+        );
+
+        const notesArray = Object.entries(
+          data.note_stats
+        ).map(([note, count]) => ({
+          note,
+          count
+        }));
+
+        setNoteStats(notesArray);
+
+      })
+
+      .catch((err) => {
+        console.error(err);
+      });
+
+  }, []);
+
+  const maxCount =
+    noteStats.length > 0
+      ? Math.max(
+          ...noteStats.map(
+            (item) => item.count
+          )
+        )
+      : 1;
 
   return (
 
@@ -37,7 +70,7 @@ function Analytics() {
 
         <div className="analytics-card">
           <h3>Most Played Note</h3>
-          <h1>{mostPlayed.note}</h1>
+          <h1>{mostPlayed}</h1>
         </div>
 
         <div className="analytics-card">
@@ -60,7 +93,7 @@ function Analytics() {
             className="heat-key"
             style={{
               opacity: Math.max(
-                item.count / 80,
+                item.count / maxCount,
                 0.25
               )
             }}

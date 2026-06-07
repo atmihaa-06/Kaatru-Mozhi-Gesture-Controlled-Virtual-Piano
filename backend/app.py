@@ -392,6 +392,8 @@ def main():
         )
 
         key = cv2.waitKey(1) & 0xFF
+        if key != 255:
+            print("KEY PRESSED:", chr(key))
 
         if key == ord(" "):
 

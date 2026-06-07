@@ -5,14 +5,97 @@ function PianoPage() {
   const [status, setStatus] = useState("Ready");
   const [note, setNote] = useState("--");
 
-  const startCamera = () => {
-    setStatus("Camera Started");
-  };
+  const startCamera = async () => {
 
-  const startRecording = () => {
-    setStatus("Recording...");
-  };
+  try {
 
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/start-camera",
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    setStatus(data.message);
+
+  } catch {
+
+    setStatus("Failed");
+
+  }
+
+};
+
+  const stopCamera = async () => {
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/stop-camera",
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    setStatus(data.message);
+
+  } catch {
+
+    setStatus("Failed");
+
+  }
+
+};
+
+const startRecording = async () => {
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/start-recording",
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    setStatus(data.message);
+
+  } catch {
+
+    setStatus("Failed");
+
+  }
+
+};
+
+const stopRecording = async () => {
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/stop-recording",
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    setStatus(data.message);
+
+  } catch {
+
+    setStatus("Failed");
+
+  }
+
+};
   return (
 
     <div className="piano-page">
@@ -45,9 +128,23 @@ function PianoPage() {
 
         <button
           className="control-btn"
+          onClick={stopCamera}
+        >
+          Stop Camera
+        </button>
+
+        <button
+          className="control-btn"
           onClick={startRecording}
         >
           Start Recording
+        </button>
+
+        <button
+          className="control-btn"
+          onClick={stopRecording}
+        >
+          Stop Recording
         </button>
 
         <button className="control-btn">

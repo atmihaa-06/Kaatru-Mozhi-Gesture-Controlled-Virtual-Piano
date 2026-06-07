@@ -1,6 +1,55 @@
+import { useEffect, useState } from "react";
 import StatCard from "../components/StatCard";
 
 function Dashboard() {
+
+  const [backendStatus, setBackendStatus] =
+    useState("LOADING...");
+
+  const [totalNotes, setTotalNotes] =
+    useState(0);
+
+  const [mostPlayed, setMostPlayed] =
+    useState("-");
+
+  useEffect(() => {
+
+    fetch("http://127.0.0.1:8000/api/status")
+
+      .then((res) => res.json())
+
+      .then((data) => {
+        setBackendStatus(data.status);
+      })
+
+      .catch(() => {
+        setBackendStatus("OFFLINE");
+      });
+
+    fetch("http://127.0.0.1:8000/api/stats")
+
+      .then((res) => res.json())
+
+      .then((data) => {
+
+        setTotalNotes(
+          data.total_notes
+        );
+
+        setMostPlayed(
+          data.most_played || "-"
+        );
+
+      })
+
+      .catch(() => {
+
+        setTotalNotes(0);
+        setMostPlayed("-");
+
+      });
+
+  }, []);
 
   return (
 
@@ -14,12 +63,12 @@ function Dashboard() {
 
         <StatCard
           title="Total Notes Played"
-          value="1245"
+          value={totalNotes}
         />
 
         <StatCard
           title="Most Played Note"
-          value="E"
+          value={mostPlayed}
         />
 
         <StatCard
@@ -29,7 +78,7 @@ function Dashboard() {
 
         <StatCard
           title="Backend Status"
-          value="ACTIVE"
+          value={backendStatus}
         />
 
       </div>
